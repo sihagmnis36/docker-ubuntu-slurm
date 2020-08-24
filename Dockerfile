@@ -1,11 +1,12 @@
 FROM ubuntu:16.04
 
-RUN apt-get update && apt-get --no-install-recommends -y install vim mariadb-server mariadb-client supervisor
+RUN apt-get update -y
+RUN apt-get install -y build-essential vim mariadb-server mariadb-client supervisor git wget curl
 
-RUN set -x \
-    && git clone https://github.com/SchedMD/slurm.git \
-    && pushd slurm \
-    && git checkout tags/$SLURM_TAG \
+RUN \
+    git clone https://github.com/SchedMD/slurm.git \
+    && cd slurm \
+    && git checkout tags/slurm-20-02-4-1 \
     && ./configure --enable-debug --enable-front-end --prefix=/usr \
        --sysconfdir=/etc/slurm --with-mysql_config=/usr/bin \
        --libdir=/usr/lib64 \
@@ -15,10 +16,10 @@ RUN set -x \
     && install -D -m644 etc/slurm.epilog.clean /etc/slurm/slurm.epilog.clean \
     && install -D -m644 etc/slurmdbd.conf.example /etc/slurm/slurmdbd.conf.example \
     && install -D -m644 contribs/slurm_completion_help/slurm_completion.sh /etc/profile.d/slurm_completion.sh \
-    && popd \
+    && cd .. \
     && rm -rf slurm \
     && groupadd -r slurm  \
-    && useradd -r -g slurm slurm 
+    && useradd -r -g slurm slurm
 
 RUN mkdir -p /etc/sysconfig/slurm \
         /var/spool/slurmd \
